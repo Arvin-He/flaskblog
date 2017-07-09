@@ -1,15 +1,20 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask import request
 from flask import make_response
 from flask import redirect
 from flask import abort
+from flask_script import Manager
+from flask_bootstrap import Bootstrap
+
 
 app = Flask(__name__)
+manager = Manager(app)
+bootstrap = Bootstrap(app)
 
 
-@app.route('/')
-def index():
-    return '<h1>Hello flask!</h1>'
+# @app.route('/')
+# def index():
+#     return '<h1>Hello flask!</h1>'
 
 # @app.route('/')
 # def index():
@@ -32,19 +37,28 @@ def index():
 #     return redirect('https://www.baidu.com')
 
 
-@app.route('/user/<id>')
-def get_user(id):
-    user = load_user(id)
-    if not user:
-        abort(404)
-    return '<h1>Hello, %s</h1>' % user.name
+# @app.route('/user/<id>')
+# def get_user(id):
+#     user = load_user(id)
+#     if not user:
+#         abort(404)
+#     return '<h1>Hello, %s</h1>' % user.name
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
+# @app.route('/user/<name>')
+# def user(name):
+#     return '<h1>Hello, %s!</h1>' % name
 
 
 @app.route('/user/<name>')
 def user(name):
-    return '<h1>Hello, %s!</h1>' % name
+    return render_template('user.html', name=name)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    manager.run()
