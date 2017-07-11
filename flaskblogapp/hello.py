@@ -6,15 +6,24 @@ from flask import abort
 from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import Required
+
 from datetime import datetime
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'hard to guess string'
+
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 
+class NameForm(FlaskForm):
+    name = StringField('what is your name?', validators=[Required()])
+    submit = SubmitField('Submit')
 # @app.route('/')
 # def index():
 #     return '<h1>Hello flask!</h1>'
@@ -47,9 +56,14 @@ moment = Moment(app)
 #         abort(404)
 #     return '<h1>Hello, %s</h1>' % user.name
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', current_time=datetime.utcnow())
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template('index.html', form=form, name=name)
 
 
 # @app.route('/user/<name>')
