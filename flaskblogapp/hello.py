@@ -13,7 +13,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from datetime import datetime
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -27,6 +27,8 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[flasky]'
+app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin<flasky@example.com>'
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
@@ -36,11 +38,23 @@ manager.add_command('db', MigrateCommand)
 mail = Mail(app)
 
 
-
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
+
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject, 
+                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    mail.send(msg)
+
+
+
+
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
