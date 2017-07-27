@@ -3,3 +3,4 @@ __cache__/
 .idea/
 .DS_Store/
 flaskvenv/
+*.pyc
